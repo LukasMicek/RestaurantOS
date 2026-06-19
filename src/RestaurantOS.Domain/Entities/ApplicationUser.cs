@@ -1,0 +1,8 @@
+using Microsoft.AspNetCore.Identity;
+
+namespace RestaurantOS.Domain.Entities;
+
+public class ApplicationUser : IdentityUser
+{
+    public string DisplayName { get; set; } = string.Empty;
+}
