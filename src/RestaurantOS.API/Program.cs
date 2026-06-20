@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantOS.Domain.Entities;
 using RestaurantOS.Infrastructure.Persistence;
+using RestaurantOS.Application.Auth;
+using FluentValidation;
+using RestaurantOS.Infrastructure.Auth;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +20,9 @@ builder.Services
         opt.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<AppDbContext>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -26,5 +33,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapControllers();
 
 app.Run();
