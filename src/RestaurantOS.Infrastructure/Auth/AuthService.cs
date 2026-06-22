@@ -6,7 +6,7 @@ using RestaurantOS.Domain.Entities;
 
 namespace RestaurantOS.Infrastructure.Auth;
 
-public class AuthService(UserManager<ApplicationUser> users, ILogger<AuthService> logger) : IAuthService
+public class AuthService(UserManager<ApplicationUser> users, ITokenService tokens, ILogger<AuthService> logger) : IAuthService
 {
     public async Task<Result> RegisterAsync(RegisterRequest req, CancellationToken ct)
     {
@@ -20,5 +20,16 @@ public class AuthService(UserManager<ApplicationUser> users, ILogger<AuthService
         }
         logger.LogInformation("User registered: {UserId}", user.Id);
         return Result.Success();
+    }
+
+    public async Task<Result<string>> LoginAsync(LoginRequest req, CancellationToken ct)
+    {
+        var user = await users.FindByEmailAsync(req.Email);
+        if (user is null || !await users.CheckPasswordAsync(user, req.Password))
+        {
+            logger.LogWarning("Failed login attempt for {Email}", req.Email);
+            return Result<string>.Failure("Invalid credentials.");
+        }
+        return Result<string>.Success(tokens.CreateAccessToken(user));
     }
 }
