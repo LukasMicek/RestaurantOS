@@ -22,4 +22,13 @@ public class AuthController(IAuthService auth, IValidator<RegisterRequest> valid
             ? StatusCode(StatusCodes.Status201Created)
             : BadRequest(new { errors = result.Errors });
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginRequest req, CancellationToken ct)
+    {
+        var result = await auth.LoginAsync(req, ct);
+        return result.IsSuccess
+            ? Ok(new { accessToken = result.Value })
+            : Unauthorized(new { errors = result.Errors });
+    }
 }
