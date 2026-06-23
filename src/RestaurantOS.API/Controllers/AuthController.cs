@@ -2,6 +2,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantOS.Application.Auth;
 using RestaurantOS.Application.Common;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestaurantOS.API.Controllers;
 
@@ -31,4 +34,13 @@ public class AuthController(IAuthService auth, IValidator<RegisterRequest> valid
             ? Ok(new { accessToken = result.Value })
             : Unauthorized(new { errors = result.Errors });
     }
+
+    [Authorize]
+    [HttpGet("me")]
+    public IActionResult Me()
+    {
+        var id = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var email = User.FindFirstValue(JwtRegisteredClaimNames.Email);
+        return Ok(new { id, email });
+    }   
 }
